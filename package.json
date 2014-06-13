@@ -1,0 +1,30 @@
+{
+  "name": "zombees",
+  "version": "0.0.0",
+  "description": "socket.io based load testing",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/crowdchat/zombees"
+  },
+  "keywords": [
+    "zombies",
+    "testing",
+    "socket.io",
+    "simulator"
+  ],
+  "author": "Drew Bratcher <drew@crowdspots.com> (http://www.crowdchat.net/)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/crowdchat/zombees/issues"
+  },
+  "homepage": "https://github.com/crowdchat/zombees",
+  "dependencies": {
+    "socket.io-client": "^1.0.4",
+    "needle": "^0.7.2",
+    "http": "0.0.0"
+  }
+}
