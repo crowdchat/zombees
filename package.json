@@ -25,6 +25,11 @@
   "dependencies": {
     "socket.io-client": "^1.0.4",
     "needle": "^0.7.2",
-    "http": "0.0.0"
+    "http": "0.0.0",
+    "nomnom": "^1.7.0"
+  },
+  "preferGlobal": "true",
+  "bin": {
+    "zombees": "index.js"
   }
 }

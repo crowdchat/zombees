@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 // includes
 var io = require('socket.io-client');
 var needle = require('needle');
@@ -29,13 +31,13 @@ var argv = require('nomnom')
       abbr: 'f',
       help: 'specifies how often sources send messages'
    })
-   .option('chat_id', {
-      abbr: 'i',
-      help: 'specifies how often sources send messages'
+   .option('query', {
+      abbr: 'q',
+      help: 'specifies socket io query'
    })
-   .option('hash', {
-      abbr: 'a',
-      help: 'specifies how often sources send messages'
+   .option('', {
+      abbr: 'p',
+      help: 'specifies ajax post data'
    })
    .option('long_polls', {
       abbr: 'l',
@@ -45,12 +47,6 @@ var argv = require('nomnom')
 
 
 // param processing
-if(!argv.chat_id || ! argv.hash) {
-  console.log('Chat ID and Hash are required.');
-  process.exit();
-}
-var chat = argv.chat_id;
-var hash = argv.hash;
 var server = argv.server || 'http://localhost:3000';
 var clients = argv.num_clients || 10;
 var sources = argv.msg_sources || 5;
@@ -58,6 +54,8 @@ var startup = argv.startup_time || clients * 1 * 1000;
 var duration = argv.duration || 15 * 60 * 1000;
 var freq = argv.msg_frequency || 30 * 1000;
 var polling = argv.long_polls || 0;
+var query = argv.query || {};
+var postData = argv.postData || {};
 http.globalAgent.maxSockets = 1000;
 
 
@@ -66,7 +64,7 @@ var idx = 0;
 var intervalID;
 
 var makeConnection = function() {
-  needle.get(server+'/'+hash+'err', function(error, response) {
+  needle.get(server, function(error, response) {
     if(!response) {
       console.log(idx,' could not connect');
       return;
@@ -87,23 +85,11 @@ var makeConnection = function() {
     socket.on('connect', function() {
       socket.emit('spoofSession', {'cookies':cookies,'cookie':cookie, 'loggedIn': true});
       socket.idx = idx;
-      socket.options = options;
-      socket.hash = hash;
-      socket.chat = chat;
     });
     socket.on('ready', function() {
-      var query = {
-        hash: socket.hash,
-        spot_id: socket.chat,
-        isLSVisible: 'true',
-        sortBy: 'activity',
-        cookie: socket.idx
-      };
       socket.emit('request', query);
     });
     if((idx % (clients / sources)) == 0) {
-      // msg source
-      console.log(idx + 1, ' is a source ' );
       setInterval(function() { postSomething(socket); }, freq);
     }
     idx++;
@@ -119,20 +105,7 @@ intervalID = setInterval(makeConnection, startup/clients);
 
 // send messages from sources
 function postSomething(socket) {
-  needle.post(server+'/'+socket.hash, {
-    operation: "add_post",
-    orig: socket.idx,
-    parent_id: socket.chat,
-    hash: socket.hash,
-    spot_id: socket.chat,
-    tweet: false,
-    share: false,
-    fbpost: false,
-    content: [],
-    caseHash: socket.hash,
-    post_type: 'post',
-    urls: []
-  }, socket.options);
+  needle.post(server, postData, socket.options);
   console.log(socket.idx + ' sent something');
 }
 
